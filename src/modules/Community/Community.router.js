@@ -9,7 +9,7 @@ router.post(
   communitycontroller.createCommunity
 );
 
-router.get("/getCommunities", communitycontroller.getCommunities);
+router.get("/:id/getCommunities", communitycontroller.getCommunities);
 router.get("/getactiveCommunities", communitycontroller.getActiveCommunities);
 router.get("/:id", communitycontroller.getSpecificCommunity);
 router.post("/:community_name/addProperty", communitycontroller.addProperty);

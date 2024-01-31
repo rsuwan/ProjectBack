@@ -1,4 +1,4 @@
-import mongoose, { Schema, model } from "mongoose";
+import mongoose, { Schema, model,Types } from "mongoose";
 const PostSchema = new mongoose.Schema({
   user_email: {
     type: String,
@@ -12,27 +12,26 @@ const PostSchema = new mongoose.Schema({
     type: String,
     required: [true, "Community name is required"],
   },
-  like: {
-    type: Number,
-    required: true,
-    default: 0,
-  },
+  likes: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+
   post_type:{
     type: String,
-    enum: ['owner', 'costomer'],
+    enum: ['owner', 'customer'],
     required: [true, "type is required"],
   },
-  supImages: [
+  Images: [
     {
       type: Object,
       // required: [true, "sup Images is required"],
     },
   ],
     properties: [{
-      type: Object,
     }],
-
-});
+  },
+  {
+    timestamps: true,
+  }
+);
 
 const postModel = mongoose.models.Post || model("Post", PostSchema);
 export default postModel;

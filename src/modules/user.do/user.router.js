@@ -24,8 +24,10 @@ router.post(
   UsersController.addImageAdmin
 );
 router.post(
-  "/:email",
+  "/:id",
   fileUpload(fileValidation.image).single("image"),
   UsersController.addImageUser
 );
+// router.post('/:id/like', UsersController.likePost);
+// router.post('/:id/unlike', UsersController.unlikePost);
 export default router;

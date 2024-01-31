@@ -3,7 +3,6 @@ import postModle from "../../../db/modle/post.modle.js";
 import userModle from "../../../db/modle/User.modle.js";
 import commentModle from "../../../db/modle/comment.modle.js";
 import mongoose from "mongoose";
-
 export const createComment = async (req, res) => {
   const content = req.body;
   const { community, post, id } = req.params;
@@ -17,6 +16,7 @@ export const createComment = async (req, res) => {
 
   const postID = new mongoose.Types.ObjectId(post);
   const postFound = await postModle.findOne({ _id: postID }, {});
+  console.log(postFound);
   if (!postFound) {
     return res.status(401).json({ msg: "Invalid post" });
   }
@@ -28,12 +28,12 @@ export const createComment = async (req, res) => {
 
   const newComment = await commentModle.create({
     user_email: id,
+    user_name: idFound.firstName + " " + idFound.lastName,
     post_id: postID,
     content: content.content,
   });
   return res.status(200).json({ msg: "this comment created successfully" });
 };
-
 export const viewComment = async (req, res) => {
   const content = req.body;
   const { community, post } = req.params;
@@ -100,3 +100,4 @@ export const deleteComment = async (req, res) => {
     return res.status(500).json({ msg: "Internal Server Error" });
   }
 };
+

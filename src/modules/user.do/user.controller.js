@@ -2,12 +2,11 @@ import user from "../../../db/modle/User.modle.js";
 import admin from "../../../db/modle/admin.modle.js";
 import log from "../../../db/log.js";
 import post from "../../../db/modle/post.modle.js";
-import comment from "../../../db/modle/comment.modle.js";
+import commentModle from "../../../db/modle/comment.modle.js";
 import cloudinary from "../../services/cloudinary.js";
 
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-
 export const viewMyPosts = async (req, res) => {
   // http://localhost:3000/userDo/alia@gmail.com/viewMyPosts
   try {
@@ -22,7 +21,24 @@ export const viewMyPosts = async (req, res) => {
       if (!posts || posts.length === 0) {
         return res.status(404).send("this user did not posted");
       }
-      return res.status(201).send(posts);
+      let newArr = [];
+      for (let i of posts) {
+        console.log(i);
+        let obj = {};
+        const commentsNumber = await commentModle.countDocuments({
+          post_id: i._id,
+        });
+        const personalImage = await user.findOne(
+          { email: i.user_email },
+          { image: 1, _id: 0 }
+        );
+        obj["post"] = i;
+        obj["commentsNumber"] = commentsNumber;
+        obj["personalImage"] = personalImage;
+        newArr.push(obj);
+      }
+
+      return res.status(201).send(newArr);
     } catch (err) {
       return res.status(500).send("Error retrieving posts");
     }
@@ -40,7 +56,7 @@ export const viewMyComments = async (req, res) => {
       return res.status(404).send({ msg: "this user not founded" });
     }
     try {
-      const comments = await comment.find({ user_email: email }, {});
+      const comments = await commentModle.find({ user_email: email }, {});
       if (!comments || comments.length === 0) {
         return res
           .status(404)
@@ -70,7 +86,7 @@ export const viewMyComments = async (req, res) => {
   }
 };
 export const viewMyPersonalInformation = async (req, res) => {
-//http://localhost:3000/userDo/raghad@gmail.com/viewMyPersonalInformation
+  //http://localhost:3000/userDo/raghad@gmail.com/viewMyPersonalInformation
   const personalInfoParams = req.params;
   const email = personalInfoParams.email;
   try {
@@ -189,10 +205,10 @@ export const updateimage = async (req, res) => {
 };
 export const addImageUser = async (req, res) => {
   try {
-    const userEmail = req.params.email;
-    const existingUser = await user.findOne({ email: userEmail });
+    const userId = req.params.id; // Assuming you are passing the user ID in the URL
+    const existingUser = await user.findById(userId); // Use findById instead of findOne with email
     if (!existingUser) {
-      return res.status(404).json({ message: "Account not found" });
+      return res.status(404).json({ message: "User not found" });
     }
     const { secure_url, public_id } = await cloudinary.uploader.upload(
       req.file.path,
@@ -209,11 +225,11 @@ export const addImageUser = async (req, res) => {
   }
 };
 
+
 export const addImageAdmin = async (req, res) => {
   const userEmail = req.params.email;
-    const existingUser = await admin.findOne({ email: userEmail });
+  const existingUser = await admin.findOne({ email: userEmail });
   try {
-    
     if (!existingUser) {
       return res.status(404).json({ message: "Account not found" });
     }
@@ -231,3 +247,43 @@ export const addImageAdmin = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
+// export const likePost = asyncHandler(async (req, res, next) => {
+//   const { id } = req.params; // post id
+//   const user_id = req.user._id;
+
+//   try {
+//     const Post = await post.findByIdAndUpdate(
+//       id,
+//       {
+//         $addToSet: { likes: user_id },
+//         $pull: { unlikes: user_id },
+//       },
+//       { new: true }
+//     );
+
+//     return res.status(200).json({ message: "Post liked successfully", Post });
+//   } catch (error) {
+//     console.error("Error:", error);
+//     return res.status(500).json({ message: "Internal Server Error" });
+//   }
+// });
+// export const unlikePost = asyncHandler(async (req, res, next) => {
+//   const { id } = req.params; // post id
+//   const user_id = req.user._id;
+
+//   try {
+//     const Post = await post.findByIdAndUpdate(
+//       id,
+//       {
+//         $addToSet: { unlikes: user_id },
+//         $pull: { likes: user_id },
+//       },
+//       { new: true }
+//     );
+
+//     return res.status(200).json({ message: "Post unliked successfully", Post });
+//   } catch (error) {
+//     console.error("Error:", error);
+//     return res.status(500).json({ message: "Internal Server Error" });
+//   }
+// });
