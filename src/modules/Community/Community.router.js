@@ -18,6 +18,7 @@ router.delete(
   "/:community_name/deleteCommunity",
   communitycontroller.deleteCommunity
 );
+
 router.post("/cancleCreation", communitycontroller.cancleCreation);
 router.delete(
   "/:community/deleteProperty/:id",
