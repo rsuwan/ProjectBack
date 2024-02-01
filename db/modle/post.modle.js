@@ -20,6 +20,8 @@ const PostSchema = new mongoose.Schema(
       enum: ["owner", "customer"],
       required: [true, "type is required"],
     },
+    messages: [{ type: Schema.Types.ObjectId, ref: "Message" }],
+
     Images: [
       {
         type: Object,

@@ -55,6 +55,8 @@ const userSchema = new Schema(
       type: Object,
       default: null,
     },
+    messages: [{ type: Schema.Types.ObjectId, ref: "Message" }],
+
   },
   {
     timestamps: true,
