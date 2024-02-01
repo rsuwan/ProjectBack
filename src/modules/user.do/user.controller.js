@@ -224,8 +224,6 @@ export const addImageUser = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
-
 export const addImageAdmin = async (req, res) => {
   const userEmail = req.params.email;
   const existingUser = await admin.findOne({ email: userEmail });
@@ -247,43 +245,25 @@ export const addImageAdmin = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
-// export const likePost = asyncHandler(async (req, res, next) => {
-//   const { id } = req.params; // post id
-//   const user_id = req.user._id;
+export const likePost = async (req, res) => {
+  const { postId, userId } = req.params; // Assuming you're passing the postId and userId in the params
+  try {
+      const User = await user.findById(userId);
+      if (!User) {
+          return res.status(404).send({ msg: 'User not found' });
+      }
+      const Post = await post.findById(postId);
+      if (!Post) {
+          return res.status(404).send({ msg: 'Post not found' });
+      }
+      if (Post.likes.includes(userId)) {
+          return res.status(400).send({ msg: 'User has already liked this post' });
+      }
+      Post.likes.push(userId);
+      await Post.save();
+      return res.status(200).send({ msg: 'Post liked successfully' });
+  } catch (err) {
+      return res.status(500).send({ msg: 'Error liking post', error: err.message });
+  }
+};
 
-//   try {
-//     const Post = await post.findByIdAndUpdate(
-//       id,
-//       {
-//         $addToSet: { likes: user_id },
-//         $pull: { unlikes: user_id },
-//       },
-//       { new: true }
-//     );
-
-//     return res.status(200).json({ message: "Post liked successfully", Post });
-//   } catch (error) {
-//     console.error("Error:", error);
-//     return res.status(500).json({ message: "Internal Server Error" });
-//   }
-// });
-// export const unlikePost = asyncHandler(async (req, res, next) => {
-//   const { id } = req.params; // post id
-//   const user_id = req.user._id;
-
-//   try {
-//     const Post = await post.findByIdAndUpdate(
-//       id,
-//       {
-//         $addToSet: { unlikes: user_id },
-//         $pull: { likes: user_id },
-//       },
-//       { new: true }
-//     );
-
-//     return res.status(200).json({ message: "Post unliked successfully", Post });
-//   } catch (error) {
-//     console.error("Error:", error);
-//     return res.status(500).json({ message: "Internal Server Error" });
-//   }
-// });

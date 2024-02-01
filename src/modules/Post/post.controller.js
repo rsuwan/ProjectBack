@@ -115,8 +115,6 @@ export const deletePost = async (req, res) => {
     return res.status(500).send({ msg: "Internal Server Error" });
   }
 };
-
-
 export const createPosts = async (req, res) => {
   try {
     const { community, id } = req.params;
@@ -228,7 +226,6 @@ export const addPostImage = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
 export const createPost = async (req, res) => {
   try {
     const { community, id } = req.params;

@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import { sendemail } from "../../services/email.js";
 //import { nanoid } from "nanoid";
 import { customAlphabet } from "nanoid";
+
 export const SignUp = async (req, res) => {
   const { firstName, lastName, email, password } = req.body;
   try {
@@ -82,7 +83,7 @@ export const confirmEmail = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
-export const sendCode = async (req, res) => {
+export const sendCode2 = async (req, res) => {
   const { email } = req.body;
 
   try {
@@ -176,7 +177,7 @@ export const SignIn = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
-export const sendCode2 = async (req, res) => {
+export const sendCode= async (req, res) => {
   const { email } = req.body;
 
   try {

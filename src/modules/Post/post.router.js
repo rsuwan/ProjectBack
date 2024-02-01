@@ -4,7 +4,7 @@ import fileUpload, { fileValidation } from "../../services/multer.js";
 const router = Router();
 
 router.get("/:community/postView", postcontroller.postView);
-router.post("/:community/:id/createPost", postcontroller.createPost);
+router.post("/:community/:id/createPost", postcontroller.createPosts);
 router.get("/:community/viewPosts", postcontroller.viewPost);
 router.delete("/:community/:id/deletePost/:postId", postcontroller.deletePost);
 // router.put('/editPost',postcontroller.updatePost);
@@ -23,13 +23,13 @@ router.post(
     ]),
   postcontroller.addPostImage
 );
-router.post(
-  "/:community/:id/createPost",
-  fileUpload(fileValidation.image).fields([
-    {name:'Images',maxCount:10},
-    ]),
-  postcontroller.createPost
-);
+// router.post(
+//   "/:community/:id/createPost",
+//   fileUpload(fileValidation.image).fields([
+//     {name:'Images',maxCount:10},
+//     ]),
+//   postcontroller.createPost
+// );
 // router.post("/:community/likePost", postcontroller.likePost);
 
 export default router;
