@@ -23,6 +23,20 @@ router.post(
     ]),
   postcontroller.addPostImage
 );
+router.post(
+  "/:community/:id/createPost",
+  fileUpload(fileValidation.image).fields([
+    {name:'Images',maxCount:10},
+    ]),
+  postcontroller.createPostimage
+);
+router.post(
+  "/:community/:id/createPost",
+  fileUpload(fileValidation.image).fields([
+    {name:'Images',maxCount:10},
+    ]),
+  postcontroller.createPost
+);
 // router.post(
 //   "/:community/:id/createPost",
 //   fileUpload(fileValidation.image).fields([

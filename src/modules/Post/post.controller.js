@@ -226,6 +226,7 @@ export const addPostImage = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 export const createPost = async (req, res) => {
   try {
     const { community, id } = req.params;
@@ -316,6 +317,101 @@ export const createPost = async (req, res) => {
     await newPost.save();
 
     return res.status(201).send({ msg: "Created successfully :)" });
+  } catch (err) {
+    console.error("Error:", err);
+    return res.status(500).send({ msg: "Error creating post" });
+  }
+};
+export const createPostimage = async (req, res) => {
+  try {
+    const { community, id } = req.params;
+    const foundCommunity = await communities.findOne({
+      community_name: community,
+    });
+    const foundID = await user.findOne({ email: id });
+
+    if (!foundCommunity) {
+      return res.status(404).send({ msg: "Community not found" });
+    }
+    if (!foundID) {
+      return res.status(404).send({ msg: "Email not found" });
+    }
+
+    const { type, input } = req.body;
+
+    // Fetch community properties from the database
+    const communityProperties = await communityProperities.find({
+      community_Name: community,
+    });
+
+    // Function to validate properties and their values against the database
+    const validateProperties = (properties) => {
+      const missingProperties = [];
+
+      for (const prop of properties) {
+        const propertyDetails = communityProperties.find(
+          (cp) => cp.property === prop.property
+        );
+
+        if (!propertyDetails) {
+          return false; // Property details not found in the database
+        }
+        // Check if type is "customer" and customer_fill is true
+        if (type === "customer" && propertyDetails.customer_fill && !prop.value) {
+          missingProperties.push(propertyDetails.property);
+        }
+
+        // Check if type is "owner" and owner_fill is true
+        if (type === "owner" && propertyDetails.owner_fill && !prop.value) {
+          missingProperties.push(propertyDetails.property);
+        }
+      }
+
+      return { isValid: missingProperties.length === 0, missingProperties };
+    };
+
+    // Validate properties and their values against the database
+    const validationResult = validateProperties(input);
+
+    if (!validationResult.isValid) {
+      return res.status(400).send({
+        msg: "Invalid property values for the given post type",
+        missingProperties: validationResult.missingProperties,
+      });
+    }
+
+    // Image upload logic
+    const uploadedImages = req.files['Images'];
+
+    if (!uploadedImages) {
+      return res.status(400).json({ message: "No images uploaded" });
+    }
+
+    const imagesArray = [];
+
+    for (const image of uploadedImages) {
+      const { secure_url, public_id } = await cloudinary.uploader.upload(
+        image.path,
+        {
+          folder: `${process.env.APP_NAME}/posts`,
+        }
+      );
+      imagesArray.push({ secure_url, public_id });
+    }
+
+    // Continue with the rest of your code to create the post
+    const newPost = await post.create({
+      user_email: id,
+      user_name: foundID.firstName + " " + foundID.lastName,
+      community_name: community,
+      post_type: type,
+      like: 0,
+      properties: input,
+      Images: imagesArray,
+    });
+
+    newPost.save();
+    return res.status(201).send({ msg: "Created successfully :)", post: newPost });
   } catch (err) {
     console.error("Error:", err);
     return res.status(500).send({ msg: "Error creating post" });

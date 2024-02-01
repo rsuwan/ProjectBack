@@ -13,7 +13,6 @@ router.get(
 );
 
 router.post("/:email/changePassword", UsersController.changePassword);
-
 router.post(
   "/:email/updateMyPersonalInformation",
   UsersController.updateMyPersonalInformation

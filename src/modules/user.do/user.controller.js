@@ -346,43 +346,43 @@ export const deleteImageAdmin = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error", error: error.message });
   }
 };
-// export const likePost = asyncHandler(async (req, res, next) => {
-//   const { id } = req.params; // post id
-//   const user_id = req.user._id;
+export const likePost = asyncHandler(async (req, res, next) => {
+  const { id } = req.params; // post id
+  const user_id = req.user._id;
 
-//   try {
-//     const Post = await post.findByIdAndUpdate(
-//       id,
-//       {
-//         $addToSet: { likes: user_id },
-//         $pull: { unlikes: user_id },
-//       },
-//       { new: true }
-//     );
+  try {
+    const Post = await post.findByIdAndUpdate(
+      id,
+      {
+        $addToSet: { likes: user_id },
+        $pull: { unlikes: user_id },
+      },
+      { new: true }
+    );
 
-//     return res.status(200).json({ message: "Post liked successfully", Post });
-//   } catch (error) {
-//     console.error("Error:", error);
-//     return res.status(500).json({ message: "Internal Server Error" });
-//   }
-// });
-// export const unlikePost = asyncHandler(async (req, res, next) => {
-//   const { id } = req.params; // post id
-//   const user_id = req.user._id;
+    return res.status(200).json({ message: "Post liked successfully", Post });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+export const unlikePost = asyncHandler(async (req, res, next) => {
+  const { id } = req.params; // post id
+  const user_id = req.user._id;
 
-//   try {
-//     const Post = await post.findByIdAndUpdate(
-//       id,
-//       {
-//         $addToSet: { unlikes: user_id },
-//         $pull: { likes: user_id },
-//       },
-//       { new: true }
-//     );
+  try {
+    const Post = await post.findByIdAndUpdate(
+      id,
+      {
+        $addToSet: { unlikes: user_id },
+        $pull: { likes: user_id },
+      },
+      { new: true }
+    );
 
-//     return res.status(200).json({ message: "Post unliked successfully", Post });
-//   } catch (error) {
-//     console.error("Error:", error);
-//     return res.status(500).json({ message: "Internal Server Error" });
-//   }
-// });
+    return res.status(200).json({ message: "Post unliked successfully", Post });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+});
