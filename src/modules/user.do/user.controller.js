@@ -8,7 +8,6 @@ import cloudinary from "../../services/cloudinary.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 export const viewMyPosts = async (req, res) => {
-  // http://localhost:3000/userDo/alia@gmail.com/viewMyPosts
   try {
     const communityParams = req.params;
     const email = communityParams.email;
@@ -346,43 +345,34 @@ export const deleteImageAdmin = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error", error: error.message });
   }
 };
-export const likePost = asyncHandler(async (req, res, next) => {
-  const { id } = req.params; // post id
-  const user_id = req.user._id;
-
+export const likePost = async (req, res) => {
+  const { postId, userId } = req.params;
   try {
-    const Post = await post.findByIdAndUpdate(
-      id,
-      {
-        $addToSet: { likes: user_id },
-        $pull: { unlikes: user_id },
-      },
-      { new: true }
-    );
+      const userl = await user.findById(userId);
+      if (!userl) {
+          return res.status(404).send({ msg: 'User not found' });
+      }
 
-    return res.status(200).json({ message: "Post liked successfully", Post });
-  } catch (error) {
-    console.error("Error:", error);
-    return res.status(500).json({ message: "Internal Server Error" });
+      const postl = await post.findById(postId);
+      if (!postl) {
+          return res.status(404).send({ msg: 'Post not found' });
+      }
+
+      const likedIndex = postl.likes.indexOf(userId);
+
+      if (likedIndex > -1) {
+          // إذا كان المستخدم قد قام بالفعل بالإعجاب بالمنشور، قم بإزالة الإعجاب
+          postl.likes.splice(likedIndex, 1);
+          await postl.save();
+          return res.status(200).send({ msg: 'Like removed successfully', postl });
+      } else {
+          // إذا لم يقم المستخدم بالإعجاب بالمنشور بعد، قم بإضافة الإعجاب
+          postl.likes.push(userId);
+          await postl.save();
+          return res.status(200).send({ msg: 'Post liked successfully', postl });
+      }
+  } catch (err) {
+      return res.status(500).send({ msg: 'Error toggling like on post', error: err.message });
   }
-});
-export const unlikePost = asyncHandler(async (req, res, next) => {
-  const { id } = req.params; // post id
-  const user_id = req.user._id;
+};
 
-  try {
-    const Post = await post.findByIdAndUpdate(
-      id,
-      {
-        $addToSet: { unlikes: user_id },
-        $pull: { likes: user_id },
-      },
-      { new: true }
-    );
-
-    return res.status(200).json({ message: "Post unliked successfully", Post });
-  } catch (error) {
-    console.error("Error:", error);
-    return res.status(500).json({ message: "Internal Server Error" });
-  }
-});

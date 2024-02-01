@@ -17,6 +17,7 @@ router.post(
   "/:email/updateMyPersonalInformation",
   UsersController.updateMyPersonalInformation
 );
+router.post('/:postId/like/:userId', UsersController.likePost);
 
 router.post(
   "/addimage/:email",
