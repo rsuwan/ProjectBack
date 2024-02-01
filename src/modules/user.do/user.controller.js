@@ -154,26 +154,34 @@ export const updateMyPersonalInformation = async (req, res) => {
   }
 };
 export const changePassword = async (req, res) => {
-  //http://localhost:3000/userDo/raghad@gmail.com/changePassword
   const { password, newpassword } = req.body;
   const email = req.params.email;
-  const found = await log.findOne({ email: email });
-  if (!found) {
-    return res.status(404).send({ msg: "this user not founded" });
-  }
 
   try {
-    const hashedPassword = await bcrypt.hash(
-      newpassword,
-      parseInt(process.env.SALT_ROUND)
-    );
-    await user.updateOne(
-      { email: email },
-      { $set: { password: hashedPassword } }
-    );
-    return res.status(200).send({ msg: "Password Changed Successfully" });
+    // Find the user by email in the 'log' collection
+    const foundUser = await log.findOne({ email: email });
+
+    if (!foundUser) {
+      return res.status(404).send({ msg: "This user was not found" });
+    }
+
+    // Check if the provided current password is correct
+    const isPasswordValid = await bcrypt.compare(password, foundUser.password);
+
+    if (!isPasswordValid) {
+      return res.status(401).send({ msg: "Invalid current password" });
+    }
+
+    // Hash the new password
+    const hashedNewPassword = await bcrypt.hash(newpassword, parseInt(process.env.SALT_ROUND));
+
+    // Update the password in the 'user' collection
+    await log.updateOne({ email: email }, { $set: { password: hashedNewPassword } });
+
+    return res.status(200).send({ msg: "Password changed successfully" });
   } catch (err) {
-    return res.status(500).send({ msg: err.message });
+    console.error("Error:", err);
+    return res.status(500).send({ msg: "Internal Server Error", error: err.message });
   }
 };
 export const addImageUser = async (req, res) => {
