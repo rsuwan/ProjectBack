@@ -12,7 +12,6 @@ const initapp = async (app, express) => {
   //jokq fxzt cvma sleg, email:r.r.suwan2001@gmail.com
   app.use(express.json());
 
-  // Connect to the database
   try {
     await connectdb();
     console.log("Database connected");

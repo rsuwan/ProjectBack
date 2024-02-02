@@ -31,47 +31,66 @@ export const viewPost = async (req, res) => {
   try {
     const communityParams = req.params;
     const communityName = communityParams.community;
-    const found = await communities.findOne({ community_name: communityName });
-    if (!found) {
+    const foundCommunity = await communities.findOne({ community_name: communityName });
+    
+    if (!foundCommunity) {
       return res.status(404).send({ msg: 'Community not found' });
     }
+
     try {
-      const posts = await post.find({ community_name: communityName }).sort({ createdAt: -1 }); // ترتيب البيانات تنازليًا
-      const users = await user.find()
+      const posts = await post.find({ community_name: communityName }).sort({ createdAt: -1 });
+      const users = await user.find();
+      
       if (!posts || posts.length === 0) {
         return res.status(404).send('No posts found for community');
       }
+
       let newArr = [];
       for (let i of posts) {
         let obj = {};
-        const commentsNumber = await commentModle.countDocuments({post_id: i._id});
-        const likeNumber = i.likes.length; // get the number of likes by checking the length of the likes array
+        const userl = await user.findOne({ email: i.user_email });
+        const commentsNumber = await commentModle.countDocuments({ post_id: i._id });
+        const likeNumber = i.likes.length;
 
+        // Retrieve likes information
         const likesInfo = [];
         for (const userId of i.likes) {
           const likedUser = await user.findById(userId);
           if (likedUser) {
-            likesInfo.push({ userId, userEmail: likedUser.email });
+            likesInfo.push({ userId, userEmail: likedUser.email, userImage: likedUser.image });
           }
         }
 
-        const comments = await commentModle.find(
-          {
-            post_id: i._id,
-          },
-          {}
-        );
-        obj['postId'] = i._id; // Add post ID to the object
+        // Add user image to post if user is found
+        if (userl) {
+          i = i.toObject();
+          i.userImage = userl.image;
+        }
+
+        // Retrieve comments with user images
+        let commentsWithImages = [];
+        const comments = await commentModle.find({ post_id: i._id });
+        for (let comment of comments) {
+          const commentUser = await user.findOne({ email: comment.user_email });
+          let commentObj = comment.toObject();
+          // Add user image to comment if user is found
+          if (commentUser) {
+            commentObj.userImage = commentUser.image;
+          }
+          commentsWithImages.push(commentObj);
+        }
+
+        obj['postId'] = i._id;
         obj['post'] = i;
         obj['commentsNumber'] = commentsNumber;
-        obj['comments'] = comments;
+        obj['comments'] = commentsWithImages;
         obj['likesNumber'] = likeNumber;
-        obj['likesInfo'] = likesInfo; // Add likes information to the object
-        newArr.push(obj); 
+        obj['likesInfo'] = likesInfo;
+        newArr.push(obj);
       }
       return res.status(201).send(newArr);
     } catch (err) {
-      return res.status(500).send({msg:'Error retrieving posts'});
+      return res.status(500).send({ msg: 'Error retrieving posts' });
     }
   } catch (err) {
     return res.status(500).send({ msg: 'Error retrieving properties' });

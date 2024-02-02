@@ -6,16 +6,8 @@ router.post(
   "/:community/:post/:id/createComment",
   postcontroller.createComment
 );
-// router.get("/:community/:post/viewComment", postcontroller.viewComment);
-// router.delete(
-//   "/:community/:post/:id/deleteComment/:commentId",
-//   postcontroller.deleteComment
-// );
-
 router.delete(
   "/:community/:post/:id/deleteComment/:commentId",
   postcontroller.deleteComment
 );
-//router.get("/:community/:post/commentNumbers", postcontroller.commentNumbers);
-//delete
 export default router;
